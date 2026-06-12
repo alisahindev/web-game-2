@@ -53,6 +53,15 @@ const drawColor = (colors: CrystalColor[], seed: number): { color: CrystalColor;
   return { color: result.value, seed: result.seed };
 };
 
+const isUsefulShotTarget = (cell: CrystalCell): boolean =>
+  cell.obstacle !== "rock" && cell.obstacle !== "fossil" && cell.obstacle !== "lava-bubble";
+
+const shotColorsForBoard = (board: Board, levelColors: CrystalColor[]): CrystalColor[] => {
+  const activeColors = new Set(allCells(board).filter(isUsefulShotTarget).map((cell) => cell.color));
+  const usefulColors = levelColors.filter((color) => activeColors.has(color));
+  return usefulColors.length > 0 ? usefulColors : levelColors;
+};
+
 const nextColorInLevel = (colors: CrystalColor[], current: CrystalColor): CrystalColor => {
   const index = colors.indexOf(current);
   if (index < 0) return colors[0];
@@ -122,12 +131,14 @@ const settleState = (state: GameState): GameState => {
 };
 
 export const createGame = (level: Level = levels[0], seed = 104729): GameState => {
-  const current = drawColor(level.colors, seed);
-  const reserve = drawColor(level.colors, current.seed);
+  const board = boardFromLevel(level);
+  const shotColors = shotColorsForBoard(board, level.colors);
+  const current = drawColor(shotColors, seed);
+  const reserve = drawColor(shotColors, current.seed);
 
   return {
     level,
-    board: boardFromLevel(level),
+    board,
     launcher: {
       current: current.color,
       reserve: reserve.color,
@@ -170,9 +181,9 @@ export const applyShot = (state: GameState, landing: Coord): GameState => {
   };
 
   const resolved = resolvePlacement(state.board, placed, state.combo);
-  const nextColor = drawColor(state.level.colors, state.seed);
   const shouldSpreadLava = state.level.id >= 41 && (state.shotsRemaining - 1) % 3 === 0;
-  const spread = shouldSpreadLava ? spreadLavaBubbles(resolved.board, nextColor.seed) : { board: resolved.board, seed: nextColor.seed };
+  const spread = shouldSpreadLava ? spreadLavaBubbles(resolved.board, state.seed) : { board: resolved.board, seed: state.seed };
+  const nextColor = drawColor(shotColorsForBoard(spread.board, state.level.colors), spread.seed);
   const obstacleBreaks = addObstacleBreaks(state, resolved.event.popped, resolved.event.damaged);
 
   const nextProgress: GoalProgress = {

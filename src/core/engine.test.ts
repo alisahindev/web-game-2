@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applyBooster, applyShot, createGame, swapLauncher } from "./engine";
 import { levels } from "./levels";
+import type { Level } from "./types";
 
 describe("engine", () => {
   it("advances launcher and consumes one shot", () => {
@@ -26,6 +27,23 @@ describe("engine", () => {
 
     expect(boosted.shotsRemaining).toBe(game.shotsRemaining + 5);
     expect(boosted.boosters["extra-shots"]).toBe(game.boosters["extra-shots"] - 1);
+  });
+
+  it("starts with useful launcher colors from the current board", () => {
+    const amberOnlyLevel: Level = {
+      id: 999,
+      name: "Amber Check",
+      rows: 3,
+      cols: 3,
+      shots: 10,
+      colors: ["amber", "lava", "ice"],
+      objectives: [{ kind: "clear", amount: 0 }],
+      layout: ["AAA", "...", "..."],
+    };
+    const game = createGame(amberOnlyLevel, 104729);
+
+    expect(game.launcher.current).toBe("amber");
+    expect(game.launcher.reserve).toBe("amber");
   });
 
   it("uses cave bomb on a target and updates board state", () => {
