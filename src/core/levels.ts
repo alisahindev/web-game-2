@@ -161,35 +161,36 @@ const generatedLayout = (id: number, colors: CrystalColor[]): string[] => {
   return layout;
 };
 
-const objectivesForLevel = (id: number): Objective[] => {
-  if (id <= 5) return [{ kind: "clear", amount: 0 }];
-  if (id <= 10) return [{ kind: "drop", amount: 5 + Math.floor(id / 2) }];
-  if (id <= 15) return [{ kind: "pop-color", color: id % 2 === 0 ? "amber" : "ice", amount: 8 + id }];
-  if (id <= 20) return [{ kind: "break-obstacle", obstacle: "rock", amount: 2 + Math.floor((id - 16) / 2) }];
-  if (id <= 25) return [{ kind: "break-obstacle", obstacle: "ice-shell", amount: 2 + Math.floor((id - 21) / 2) }];
-  if (id <= 30) return [{ kind: "score", amount: 700 + id * 35 }];
-  if (id <= 35) return [{ kind: "drop", amount: 12 + Math.floor((id - 31) / 2) }];
-  if (id <= 40) return [{ kind: "break-obstacle", obstacle: "fossil", amount: 1 + Math.floor((id - 36) / 2) }];
-  if (id <= 45) return [{ kind: "score", amount: 1200 + id * 45 }];
-  return [
-    { kind: "drop", amount: 14 },
-    { kind: "score", amount: 1800 + id * 50 },
-  ];
+const objectivesForLevel = (): Objective[] => [{ kind: "clear", amount: 0 }];
+
+const filledCellCount = (layout: string[]): number =>
+  layout.reduce((total, line) => total + [...line].filter((symbol) => symbol !== ".").length, 0);
+
+const shotsForLevel = (id: number, layout: string[]): number => {
+  const earlyShots = [38, 37, 36, 35, 35][id - 1];
+  if (earlyShots !== undefined) return earlyShots;
+
+  const cells = filledCellCount(layout);
+  if (id <= 10) return Math.ceil(cells * 0.9) + 8;
+  if (id <= 20) return Math.ceil(cells * 0.75) + 8;
+  if (id <= 30) return Math.ceil(cells * 0.62) + 9;
+  if (id <= 40) return Math.ceil(cells * 0.58) + 10;
+  return Math.ceil(cells * 0.6) + 12;
 };
 
 const makeLevel = (id: number): Level => {
   const colors = colorsForLevel(id);
-  const earlyShots = [34, 33, 32, 31, 30][id - 1];
+  const layout = generatedLayout(id, colors);
 
   return {
     id,
     name: levelNames[(id - 1) % levelNames.length],
     rows: 11,
     cols: 8,
-    shots: earlyShots ?? (id <= 10 ? 25 - Math.floor((id - 6) / 2) : Math.max(14, 22 - Math.floor(id / 5))),
+    shots: shotsForLevel(id, layout),
     colors,
-    objectives: objectivesForLevel(id),
-    layout: generatedLayout(id, colors),
+    objectives: objectivesForLevel(),
+    layout,
   };
 };
 

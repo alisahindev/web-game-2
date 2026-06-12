@@ -125,6 +125,39 @@ button:disabled {
   text-align: center;
 }
 
+.level-card {
+  gap: 14px;
+}
+
+.level-meta {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.level-meta span {
+  align-content: center;
+  background: rgba(255, 224, 138, 0.1);
+  border: 1px solid rgba(255, 224, 138, 0.14);
+  border-radius: 10px;
+  color: #fff7d7;
+  display: grid;
+  font: 850 12px/1.25 system-ui, sans-serif;
+  min-height: 48px;
+  padding: 8px;
+  text-align: center;
+}
+
+.screen-card .level-tip {
+  background: rgba(98, 199, 255, 0.12);
+  border: 1px solid rgba(98, 199, 255, 0.22);
+  border-radius: 12px;
+  color: #d5f6ff;
+  font-weight: 700;
+  margin: 0;
+  padding: 10px 12px;
+}
+
 .map-panel {
   background: rgba(18, 12, 18, 0.82);
   border: 1px solid rgba(255, 224, 138, 0.14);
@@ -249,6 +282,15 @@ button:disabled {
   width: 42px;
 }
 
+.swap-button {
+  bottom: 28px;
+  left: calc(50% + 72px);
+  min-height: 34px;
+  padding: 0 12px;
+  position: absolute;
+  transform: translateX(-50%);
+}
+
 .booster-row {
   bottom: 92px;
   display: grid;
@@ -339,6 +381,10 @@ button:disabled {
     font-size: 32px;
   }
 
+  .level-meta {
+    grid-template-columns: 1fr;
+  }
+
   .map-panel {
     bottom: 8px;
     top: 8px;
@@ -353,7 +399,13 @@ button:disabled {
   }
 
   .booster-row {
+    bottom: 76px;
     gap: 6px;
+  }
+
+  .swap-button {
+    bottom: 18px;
+    left: calc(50% + 76px);
   }
 
   .booster strong {

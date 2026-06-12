@@ -46,7 +46,8 @@ const objectiveComplete = (state: GameState, objective: Objective): boolean => {
   }
 };
 
-const allObjectivesComplete = (state: GameState): boolean => state.level.objectives.every((objective) => objectiveComplete(state, objective));
+const allObjectivesComplete = (state: GameState): boolean =>
+  state.board.cells.size === 0 && state.level.objectives.every((objective) => objectiveComplete(state, objective));
 
 const drawColor = (colors: CrystalColor[], seed: number): { color: CrystalColor; seed: number } => {
   const result = pick(colors, seed);

@@ -206,6 +206,7 @@ const effectForNow = (now: number) => {
     popped: activeEffect.event.popped,
     dropped: activeEffect.event.dropped,
     damaged: activeEffect.event.damaged,
+    callout: activeEffect.event.callout,
     progress: (now - activeEffect.startedAt) / activeEffect.duration,
   };
 };
@@ -237,6 +238,26 @@ const renderCanvas = (now = performance.now()): void => {
 };
 
 const terminalTitle = (): string => (state.status === "won" ? "Mağara Açıldı!" : "Çok Yaklaştın!");
+
+const levelTipText = (levelIndex: number): string => {
+  const level = levels[levelIndex];
+  if (level.id === 1) return "İpucu: büyük kümeyi hedefle, bağlı olmayan kristaller aşağı düşer.";
+  if (level.id === 2) return "İpucu: sekme çizgisini kullan; duvardan dönen atışlar güvenlidir.";
+  if (level.id === 3) return "İpucu: alt destekleri patlatmak tek tek toplamaktan daha güçlüdür.";
+  if (level.id <= 5) return "İpucu: sıradaki kristale göre hedef değiştir; renk değiştirme hakkın var.";
+  if (level.id <= 10) return "İpucu: tavan bağlantısını koparmak tek tek temizlemekten daha hızlıdır.";
+  if (level.id <= 25) return "İpucu: engelleri yanındaki patlamalarla kır, boş atışı boşa harcama.";
+  if (level.id <= 40) return "İpucu: özel kristalleri zincir patlama ve büyük düşüş için sakla.";
+  return "İpucu: lav yayılmadan önce üst bağlantıları kır ve tahtayı hızla boşalt.";
+};
+
+const difficultyText = (levelIndex: number): string => {
+  const level = levels[levelIndex];
+  if (level.id <= 5) return "Rahat";
+  if (level.id <= 15) return "Orta";
+  if (level.id <= 35) return "Zorlu";
+  return "Usta";
+};
 
 const levelObjectiveText = (levelIndex: number): string =>
   levels[levelIndex].objectives
@@ -333,11 +354,15 @@ const syncUi = (): void => {
   if (screen === "level-start") {
     const level = levels[pendingLevelIndex];
     ui.innerHTML = `
-      <section class="screen-card">
+      <section class="screen-card level-card">
         <h2>Level ${level.id}</h2>
         <p>${level.name}</p>
-        <p>${levelObjectiveText(pendingLevelIndex)}</p>
-        <p>${level.shots} atış</p>
+        <div class="level-meta">
+          <span>${levelObjectiveText(pendingLevelIndex)}</span>
+          <span>${level.shots} atış</span>
+          <span>${difficultyText(pendingLevelIndex)}</span>
+        </div>
+        <p class="level-tip">${levelTipText(pendingLevelIndex)}</p>
         <button class="primary" data-action="begin-level">Atışa Başla</button>
         <button data-action="map">Harita</button>
       </section>`;
@@ -451,6 +476,7 @@ const syncUi = (): void => {
     <section class="game-ui">
       <div class="objective-row">${objectiveMarkup()}</div>
       <button class="pause-button" data-action="pause">II</button>
+      <button class="swap-button" data-action="swap">Değiştir</button>
       <div class="booster-row">${boosterMarkup()}</div>
       ${selectedBooster ? `<div class="target-hint">${boosterLabel[selectedBooster].name}: hedef seç</div>` : ""}
       ${
@@ -771,6 +797,11 @@ ui.addEventListener("click", (event) => {
     if (Number.isFinite(levelId)) openLevelStart(levelId - 1);
   }
   if (action === "begin-level") startLevel(pendingLevelIndex);
+  if (action === "swap" && screen === "game" && state.status === "playing" && !activeShot) {
+    state = swapLauncher(state);
+    syncUi();
+    renderCanvas();
+  }
   if (action === "play-daily" && !profile.daily.challengePlayed) {
     profile = { ...profile, daily: { ...profile.daily, challengePlayed: true } };
     saveProfile(profile);

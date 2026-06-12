@@ -11,6 +11,7 @@ export type EffectRenderState = {
   popped: CrystalCell[];
   dropped: CrystalCell[];
   damaged: CrystalCell[];
+  callout?: string;
   progress: number;
 };
 
@@ -167,6 +168,17 @@ const drawEffects = (ctx: CanvasRenderingContext2D, layout: BoardLayout, effects
     ctx.stroke();
   }
 
+  if (effects.callout) {
+    ctx.globalAlpha = 1 - progress;
+    ctx.fillStyle = "#ffe08a";
+    ctx.font = `900 ${Math.round(layout.radius * 1.05)}px system-ui, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(0, 0, 0, .65)";
+    ctx.shadowBlur = 8;
+    ctx.fillText(effects.callout, layout.originX + layout.width / 2, layout.originY + layout.radius * 0.4);
+  }
+
   ctx.restore();
 };
 
@@ -186,13 +198,6 @@ const drawHud = (ctx: CanvasRenderingContext2D, state: GameState, width: number)
   ctx.font = "700 16px system-ui, sans-serif";
   ctx.fillText(`Atış: ${state.shotsRemaining}`, panelX + 14, 62);
   ctx.fillText(`Skor: ${state.score}`, panelX + panelWidth - 118, 62);
-
-  if (state.lastEvent?.callout) {
-    ctx.textAlign = "center";
-    ctx.font = "800 24px system-ui, sans-serif";
-    ctx.fillStyle = "#ffe08a";
-    ctx.fillText(state.lastEvent.callout, width / 2, 112);
-  }
   ctx.restore();
 };
 
@@ -312,12 +317,6 @@ export const renderGame = (
     ctx.save();
     ctx.fillStyle = "rgba(18, 12, 18, .76)";
     ctx.fillRect(0, 0, width, height);
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#fff7d7";
-    ctx.font = "900 34px system-ui, sans-serif";
-    ctx.fillText(state.status === "won" ? "Mağara Açıldı!" : "Çok Yaklaştın!", width / 2, height / 2 - 18);
-    ctx.font = "700 17px system-ui, sans-serif";
-    ctx.fillText("Tekrar başlatmak için dokun.", width / 2, height / 2 + 20);
     ctx.restore();
   }
 };

@@ -65,6 +65,24 @@ describe("engine", () => {
     expect(next.status).toBe("won");
   });
 
+  it("does not win with non-clear objectives while crystals remain", () => {
+    const scoreLevel: Level = {
+      id: 1001,
+      name: "No Early Exit",
+      rows: 3,
+      cols: 3,
+      shots: 10,
+      colors: ["amber"],
+      objectives: [{ kind: "score", amount: 0 }],
+      layout: ["A..", "...", "..."],
+    };
+    const game = createGame(scoreLevel, 1);
+    const next = applyShot(game, { row: 1, col: 0 });
+
+    expect(next.board.cells.size).toBeGreaterThan(0);
+    expect(next.status).toBe("playing");
+  });
+
   it("uses cave bomb on a target and updates board state", () => {
     const game = createGame(levels[0], 17);
     const target = [...game.board.cells.values()][0];

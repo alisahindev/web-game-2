@@ -31,7 +31,13 @@ describe("levels", () => {
   });
 
   it("ramps early color pressure gradually", () => {
-    expect(levels.slice(0, 5).every((level) => level.objectives[0]?.kind === "clear")).toBe(true);
+    expect(levels.every((level) => level.objectives[0]?.kind === "clear")).toBe(true);
+    expect(
+      levels.every((level) => {
+        const board = boardFromLevel(level);
+        return level.shots >= Math.ceil(board.cells.size * 0.55);
+      }),
+    ).toBe(true);
     expect(levels.slice(0, 3).every((level) => level.colors.length === 3)).toBe(true);
     expect(levels.slice(3, 10).every((level) => level.colors.length === 4)).toBe(true);
     expect(levels.slice(0, 5).every((_, index) => largestClusterSize(index) >= 5)).toBe(true);
