@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Caveman Crystal Pop">
+  <rect width="64" height="64" rx="14" fill="#2b1831"/>
+  <path d="M32 7 52 24 44 54H20L12 24 32 7Z" fill="#f7a934" stroke="#7b4517" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M26 18 36 12 31 33 43 28 28 51 33 34 21 38Z" fill="#ffe08a" opacity=".9"/>
+</svg>
