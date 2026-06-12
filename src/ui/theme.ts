@@ -29,6 +29,8 @@ export const objectiveText = (objective: Objective, remaining: number): string =
   switch (objective.kind) {
     case "clear":
       return `Temizle: ${remaining}`;
+    case "remove":
+      return `Temizle: ${remaining}`;
     case "pop-color":
       return `${crystalStyle[objective.color].label}: ${remaining}`;
     case "break-obstacle":

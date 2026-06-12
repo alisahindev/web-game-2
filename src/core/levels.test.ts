@@ -23,10 +23,11 @@ describe("levels", () => {
 
     expect(firstLevel.colors).toHaveLength(3);
     expect(firstLevel.shots).toBeGreaterThanOrEqual(30);
-    expect(objective.kind).toBe("clear");
-    if (objective.kind !== "clear") throw new Error("Expected a clear objective");
+    expect(objective.kind).toBe("remove");
+    if (objective.kind !== "remove") throw new Error("Expected a remove objective");
 
-    expect(board.cells.size - objective.amount).toBeLessThanOrEqual(20);
+    expect(objective.amount).toBeLessThan(board.cells.size);
+    expect(objective.amount).toBeLessThanOrEqual(12);
     expect(largestClusterSize(0)).toBeGreaterThanOrEqual(6);
   });
 

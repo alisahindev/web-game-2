@@ -155,6 +155,7 @@ let layout: BoardLayout;
 let shooter: AimPoint;
 let viewport = { width: 0, height: 0 };
 let animationFrame: number | undefined;
+let shotTimeout: number | undefined;
 let activeShot: ActiveShot | undefined;
 let activeEffect: ActiveEffect | undefined;
 let reportedTerminalStatus: GameStatus | undefined;
@@ -243,6 +244,7 @@ const levelObjectiveText = (levelIndex: number): string =>
       if (objective.kind === "clear") {
         return objective.amount > 0 ? `${objective.amount} kristal kalana kadar temizle` : "Tüm kristalleri temizle";
       }
+      if (objective.kind === "remove") return `${objective.amount} kristal temizle`;
       if (objective.kind === "pop-color") return `${objective.amount} kristal patlat`;
       if (objective.kind === "break-obstacle") return `${objective.amount} engel kır`;
       if (objective.kind === "drop") return `${objective.amount} kristal düşür`;
@@ -521,9 +523,40 @@ const updateProfileAfterWin = (): void => {
 };
 
 function requestTick(): void {
-  if (animationFrame) return;
+  if (animationFrame !== undefined) {
+    cancelAnimationFrame(animationFrame);
+  }
   animationFrame = requestAnimationFrame(tick);
 }
+
+const clearPendingTick = (): void => {
+  if (animationFrame !== undefined) {
+    cancelAnimationFrame(animationFrame);
+    animationFrame = undefined;
+  }
+};
+
+const clearShotTimeout = (): void => {
+  if (shotTimeout !== undefined) {
+    window.clearTimeout(shotTimeout);
+    shotTimeout = undefined;
+  }
+};
+
+const finishActiveShot = (now = performance.now()): void => {
+  if (!activeShot) return;
+
+  const nextState = applyShot(state, activeShot.trace.landing);
+  state = nextState;
+  activeShot = undefined;
+  clearShotTimeout();
+  playSound(state.lastEvent && state.lastEvent.popped.length > 0 ? "pop" : "stick");
+  updateStatsForEvent(state.lastEvent);
+  startEffect(state.lastEvent, now);
+  updateProfileAfterWin();
+  syncUi();
+  renderCanvas(now);
+};
 
 function tick(now: number): void {
   animationFrame = undefined;
@@ -531,14 +564,7 @@ function tick(now: number): void {
   if (activeShot) {
     const distance = ((now - activeShot.startedAt) / 1000) * activeShot.speed;
     if (distance >= activeShot.totalDistance) {
-      const nextState = applyShot(state, activeShot.trace.landing);
-      state = nextState;
-      activeShot = undefined;
-      playSound(state.lastEvent && state.lastEvent.popped.length > 0 ? "pop" : "stick");
-      updateStatsForEvent(state.lastEvent);
-      startEffect(state.lastEvent, now);
-      updateProfileAfterWin();
-      syncUi();
+      finishActiveShot(now);
     }
   }
 
@@ -554,6 +580,8 @@ function tick(now: number): void {
 }
 
 const startLevel = (levelIndex: number): void => {
+  clearPendingTick();
+  clearShotTimeout();
   currentLevelIndex = Math.max(0, Math.min(levels.length - 1, levelIndex));
   state = createGame(levels[currentLevelIndex], 104729 + currentLevelIndex * 97);
   screen = "game";
@@ -614,13 +642,19 @@ const startShotAnimation = (trace: AimTrace): void => {
     return;
   }
 
+  clearShotTimeout();
+  const totalDistance = Math.max(1, pathLength(trace.path));
+  const baseSpeed = Math.max(520, layout.radius * 22);
+  const durationMs = Math.max(220, Math.min(900, (totalDistance / baseSpeed) * 1000));
+
   activeShot = {
     color: state.launcher.current,
     trace,
     startedAt: performance.now(),
-    totalDistance: pathLength(trace.path),
-    speed: Math.max(520, layout.radius * 22),
+    totalDistance,
+    speed: totalDistance / (durationMs / 1000),
   };
+  shotTimeout = window.setTimeout(() => finishActiveShot(), durationMs + 120);
   playSound("shoot");
   requestTick();
 };

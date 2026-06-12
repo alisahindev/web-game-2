@@ -10,6 +10,7 @@ describe("engine", () => {
 
     expect(next.shotsRemaining).toBe(game.shotsRemaining - 1);
     expect(next.launcher.current).toBe(game.launcher.reserve);
+    expect(next.seed).not.toBe(game.seed);
     expect(next.status).toBe("playing");
   });
 
@@ -37,13 +38,31 @@ describe("engine", () => {
       cols: 3,
       shots: 10,
       colors: ["amber", "lava", "ice"],
-      objectives: [{ kind: "clear", amount: 0 }],
+      objectives: [{ kind: "remove", amount: 3 }],
       layout: ["AAA", "...", "..."],
     };
     const game = createGame(amberOnlyLevel, 104729);
 
     expect(game.launcher.current).toBe("amber");
     expect(game.launcher.reserve).toBe("amber");
+  });
+
+  it("completes remove objectives from crystals actually popped or dropped", () => {
+    const removeLevel: Level = {
+      id: 1000,
+      name: "Remove Check",
+      rows: 3,
+      cols: 3,
+      shots: 10,
+      colors: ["amber"],
+      objectives: [{ kind: "remove", amount: 4 }],
+      layout: ["AAA", "...", "..."],
+    };
+    const game = createGame(removeLevel, 1);
+    const next = applyShot(game, { row: 1, col: 0 });
+
+    expect(next.progress.popped + next.progress.dropped).toBeGreaterThanOrEqual(4);
+    expect(next.status).toBe("won");
   });
 
   it("uses cave bomb on a target and updates board state", () => {
