@@ -162,7 +162,7 @@ const generatedLayout = (id: number, colors: CrystalColor[]): string[] => {
 };
 
 const objectivesForLevel = (id: number): Objective[] => {
-  if (id <= 5) return [{ kind: "remove", amount: [12, 14, 16, 18, 20][id - 1] }];
+  if (id <= 5) return [{ kind: "clear", amount: 0 }];
   if (id <= 10) return [{ kind: "drop", amount: 5 + Math.floor(id / 2) }];
   if (id <= 15) return [{ kind: "pop-color", color: id % 2 === 0 ? "amber" : "ice", amount: 8 + id }];
   if (id <= 20) return [{ kind: "break-obstacle", obstacle: "rock", amount: 2 + Math.floor((id - 16) / 2) }];
@@ -179,7 +179,7 @@ const objectivesForLevel = (id: number): Objective[] => {
 
 const makeLevel = (id: number): Level => {
   const colors = colorsForLevel(id);
-  const earlyShots = [30, 29, 28, 27, 26][id - 1];
+  const earlyShots = [34, 33, 32, 31, 30][id - 1];
 
   return {
     id,

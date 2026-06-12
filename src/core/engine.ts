@@ -35,8 +35,6 @@ const objectiveComplete = (state: GameState, objective: Objective): boolean => {
   switch (objective.kind) {
     case "clear":
       return state.board.cells.size <= objective.amount;
-    case "remove":
-      return state.progress.popped + state.progress.dropped >= objective.amount;
     case "pop-color":
       return (state.progress.colorPops[objective.color] ?? 0) >= objective.amount;
     case "break-obstacle":
@@ -160,8 +158,6 @@ export const remainingForObjective = (state: GameState, objective: Objective): n
   switch (objective.kind) {
     case "clear":
       return Math.max(0, state.board.cells.size - objective.amount);
-    case "remove":
-      return Math.max(0, objective.amount - state.progress.popped - state.progress.dropped);
     case "pop-color":
       return Math.max(0, objective.amount - (state.progress.colorPops[objective.color] ?? 0));
     case "break-obstacle":

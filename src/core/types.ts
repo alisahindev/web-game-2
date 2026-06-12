@@ -14,7 +14,6 @@ export type SpecialCrystalKind = "blast" | "lightning" | "drill" | "wild" | "meg
 
 export type Objective =
   | { kind: "clear"; amount: number }
-  | { kind: "remove"; amount: number }
   | { kind: "pop-color"; color: CrystalColor; amount: number }
   | { kind: "break-obstacle"; obstacle: ObstacleKind; amount: number }
   | { kind: "drop"; amount: number }

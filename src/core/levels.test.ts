@@ -22,16 +22,16 @@ describe("levels", () => {
     const board = boardFromLevel(firstLevel);
 
     expect(firstLevel.colors).toHaveLength(3);
-    expect(firstLevel.shots).toBeGreaterThanOrEqual(30);
-    expect(objective.kind).toBe("remove");
-    if (objective.kind !== "remove") throw new Error("Expected a remove objective");
+    expect(firstLevel.shots).toBeGreaterThanOrEqual(board.cells.size);
+    expect(objective.kind).toBe("clear");
+    if (objective.kind !== "clear") throw new Error("Expected a clear objective");
 
-    expect(objective.amount).toBeLessThan(board.cells.size);
-    expect(objective.amount).toBeLessThanOrEqual(12);
+    expect(objective.amount).toBe(0);
     expect(largestClusterSize(0)).toBeGreaterThanOrEqual(6);
   });
 
   it("ramps early color pressure gradually", () => {
+    expect(levels.slice(0, 5).every((level) => level.objectives[0]?.kind === "clear")).toBe(true);
     expect(levels.slice(0, 3).every((level) => level.colors.length === 3)).toBe(true);
     expect(levels.slice(3, 10).every((level) => level.colors.length === 4)).toBe(true);
     expect(levels.slice(0, 5).every((_, index) => largestClusterSize(index) >= 5)).toBe(true);

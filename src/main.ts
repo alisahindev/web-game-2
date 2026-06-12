@@ -244,7 +244,6 @@ const levelObjectiveText = (levelIndex: number): string =>
       if (objective.kind === "clear") {
         return objective.amount > 0 ? `${objective.amount} kristal kalana kadar temizle` : "Tüm kristalleri temizle";
       }
-      if (objective.kind === "remove") return `${objective.amount} kristal temizle`;
       if (objective.kind === "pop-color") return `${objective.amount} kristal patlat`;
       if (objective.kind === "break-obstacle") return `${objective.amount} engel kır`;
       if (objective.kind === "drop") return `${objective.amount} kristal düşür`;

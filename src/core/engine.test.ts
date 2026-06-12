@@ -38,7 +38,7 @@ describe("engine", () => {
       cols: 3,
       shots: 10,
       colors: ["amber", "lava", "ice"],
-      objectives: [{ kind: "remove", amount: 3 }],
+      objectives: [{ kind: "clear", amount: 0 }],
       layout: ["AAA", "...", "..."],
     };
     const game = createGame(amberOnlyLevel, 104729);
@@ -47,21 +47,21 @@ describe("engine", () => {
     expect(game.launcher.reserve).toBe("amber");
   });
 
-  it("completes remove objectives from crystals actually popped or dropped", () => {
-    const removeLevel: Level = {
+  it("completes clear objectives only when the board is empty", () => {
+    const clearLevel: Level = {
       id: 1000,
-      name: "Remove Check",
+      name: "Clear Check",
       rows: 3,
       cols: 3,
       shots: 10,
       colors: ["amber"],
-      objectives: [{ kind: "remove", amount: 4 }],
+      objectives: [{ kind: "clear", amount: 0 }],
       layout: ["AAA", "...", "..."],
     };
-    const game = createGame(removeLevel, 1);
+    const game = createGame(clearLevel, 1);
     const next = applyShot(game, { row: 1, col: 0 });
 
-    expect(next.progress.popped + next.progress.dropped).toBeGreaterThanOrEqual(4);
+    expect(next.board.cells.size).toBe(0);
     expect(next.status).toBe("won");
   });
 
